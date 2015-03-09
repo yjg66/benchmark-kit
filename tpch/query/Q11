@@ -1,0 +1,24 @@
+SELECT n_nationkey
+	,value
+FROM (
+	SELECT 0 AS KEY
+		,n_nationkey
+		,sum(ps_supplycost * ps_availqty) AS value
+	FROM partsupp
+		,supplier
+		,nation
+	WHERE ps_suppkey = s_suppkey
+		AND s_nationkey = n_nationkey
+	GROUP BY n_nationkey
+	) AS A
+	,(
+		SELECT 0 AS KEY
+			,sum(ps_supplycost * ps_availqty) * (0.0002 / :scale) AS threshold
+		FROM partsupp
+			,supplier
+			,nation
+		WHERE ps_suppkey = s_suppkey
+			AND s_nationkey = n_nationkey
+		) AS B
+WHERE A.KEY = B.KEY
+	AND value > threshold

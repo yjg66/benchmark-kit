@@ -1,0 +1,36 @@
+SELECT cntrycode
+	,count(*) AS numcust
+	,sum(c_acctbal) AS totacctbal
+FROM (
+	SELECT 0 AS KEY
+		,substring(c_phone, 1, 2) AS cntrycode
+		,c_acctbal
+	FROM customer
+	WHERE substring(c_phone, 1, 2) IN (
+			'26'
+			,'29'
+			,'31'
+			,'28'
+			,'30'
+			,'25'
+			,'40'
+			)
+	) AS A
+	,(
+		SELECT 0 AS KEY
+			,avg(c_acctbal) AS threshold
+		FROM customer
+		WHERE c_acctbal > 0.00
+			AND substring(c_phone, 1, 2) IN (
+				'26'
+				,'29'
+				,'31'
+				,'28'
+				,'30'
+				,'25'
+				,'40'
+				)
+		) AS B
+WHERE A.KEY = B.KEY
+	AND c_acctbal > threshold
+GROUP BY cntrycode

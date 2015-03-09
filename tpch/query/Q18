@@ -1,0 +1,25 @@
+SELECT c_nationkey
+	,sum(l_quantity)
+FROM (
+	SELECT c_nationkey
+		,l_quantity
+		,o_orderpriority
+	FROM customer
+		,orders
+		,lineitem
+	WHERE c_custkey = o_custkey
+		AND o_orderkey = l_orderkey
+	) A
+JOIN (
+	SELECT o_orderpriority
+	FROM (
+		SELECT o_orderpriority
+			,sum(l_quantity) AS tot_qty
+		FROM orders
+			,lineitem
+		WHERE o_orderkey = l_orderkey
+		GROUP BY o_orderpriority
+		) B
+	WHERE tot_qty > 305025000 * :scale
+	) C ON (A.o_orderpriority = C.o_orderpriority)
+GROUP BY c_nationkey

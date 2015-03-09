@@ -1,0 +1,31 @@
+SELECT o_year
+	,sum(CASE 
+			WHEN nation = 'JAPAN'
+				THEN volume
+			ELSE 0
+			END) / sum(volume) AS mkt_share
+FROM (
+	SELECT substring(o_orderdate, 1, 4) AS o_year
+		,l_extendedprice * (1 - l_discount) AS volume
+		,n2.n_name AS nation
+	FROM lineitem
+		,part
+		,supplier
+		,orders
+		,customer
+		,nation n1
+		,nation n2
+		,region
+	WHERE p_partkey = l_partkey
+		AND s_suppkey = l_suppkey
+		AND l_orderkey = o_orderkey
+		AND o_custkey = c_custkey
+		AND c_nationkey = n1.n_nationkey
+		AND n1.n_regionkey = r_regionkey
+		AND r_name = 'ASIA'
+		AND s_nationkey = n2.n_nationkey
+		AND o_orderdate BETWEEN '1995-01-01'
+			AND '1996-12-31'
+		AND p_type = 'LARGE POLISHED BRASS'
+	) AS all_nations
+GROUP BY o_year
