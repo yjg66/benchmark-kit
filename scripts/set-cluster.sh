@@ -28,10 +28,13 @@ else
   
   sed -i 's/ephemeral/persistent/g' ~/spark/conf/spark-env.sh
   sed -i 's/,\/mnt2\/spark//g' ~/spark/conf/spark-env.sh
-  sed -i 's/ephemeral/persistent/g' ~/spark/conf/spark-defaults.conf
-  sed -i "s/55047m/$2g/g" ~/spark/conf/spark-defaults.conf
-  echo "spark.number.executors `cat ~/spark/conf/slaves | wc -l`" >> ~/spark/conf/spark-defaults.conf
   echo "export SPARK_WORKER_DIR=/mnt/spark/work" >> ~/spark/conf/spark-env.sh
+
+  sed -i 's/ephemeral/persistent/g' ~/spark/conf/spark-defaults.conf
+  sed -i "s/spark.executor.memory[ \t].*$/spark.executor.memory $2g/g" ~/spark/conf/spark-defaults.conf
+  echo "spark.number.executors `cat ~/spark/conf/slaves | wc -l`" >> ~/spark/conf/spark-defaults.conf
+  echo "spark.shuffle.consolidateFiles true" >> ~/spark/conf/spark-defaults.conf
+  echo "spark.driver.memory $(($2 / 2))g" >> ~/spark/conf/spark-defaults.conf
 
   ~/spark/sbin/stop-all.sh
   sleep 3
