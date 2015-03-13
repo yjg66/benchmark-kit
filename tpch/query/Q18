@@ -20,6 +20,6 @@ JOIN (
 		WHERE o_orderkey = l_orderkey
 		GROUP BY o_orderpriority
 		) B
-	WHERE tot_qty > 305025000 * :scale
+	WHERE tot_qty > 30502500 * :scale
 	) C ON (A.o_orderpriority = C.o_orderpriority)
 GROUP BY c_nationkey

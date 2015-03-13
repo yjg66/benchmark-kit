@@ -1,6 +1,6 @@
-if [[ $# -ne 2 ]]
+if [[ $# -ne 3 ]]
 then
-  echo "Please specify the block size in MB and memory in GB"
+  echo "Please specify the block size in MB, memory in GB and dataset scale"
 else    
   if [ -d '/vol0/persistent-hdfs' ]
   then
@@ -37,6 +37,7 @@ else
   echo "spark.driver.memory $(($2 / 2))g" >> ~/spark/conf/spark-defaults.conf
   echo "spark.sql.parquet.useDataSourceApi false" >> ~/spark/conf/spark-defaults.conf
   echo "spark.sql.autoBroadcastJoinThreshold 524288000" >> ~/spark/conf/spark-defaults.conf
+  echo "spark.sql.online.test.scale $3" >> ~/spark/conf/spark-defaults.conf
 
   ~/spark/sbin/stop-all.sh
   sleep 3

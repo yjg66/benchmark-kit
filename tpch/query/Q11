@@ -13,7 +13,7 @@ FROM (
 	) AS A
 	,(
 		SELECT 0 AS KEY
-			,sum(ps_supplycost * ps_availqty) * (0.0002 / :scale) AS threshold
+			,sum(ps_supplycost * ps_availqty) * (0.002 / :scale) AS threshold
 		FROM partsupp
 			,supplier
 			,nation

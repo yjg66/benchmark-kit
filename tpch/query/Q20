@@ -23,7 +23,7 @@ JOIN (
 			,qty
 		FROM (
 			SELECT s_nationkey AS nationkey
-				,sum(l_quantity) * (0.001 / :scale) AS qty
+				,sum(l_quantity) * (0.01 / :scale) AS qty
 			FROM lineitem
 				,supplier
 			WHERE l_suppkey = s_suppkey
