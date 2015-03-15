@@ -2,6 +2,8 @@ if [[ $# -ne 3 ]]
 then
   echo "Please specify the block size in MB, memory in GB and dataset scale"
 else    
+  ~/ephemeral-hdfs/bin/stop-dfs.sh
+
   if [ -d '/vol0/persistent-hdfs' ]
   then
     while read line
@@ -23,7 +25,6 @@ else
   sed -i "s/134217728/$BLOCKSIZE/g" ~/persistent-hdfs/conf/hdfs-site.xml
   ~/spark-ec2/copy-dir --delete ~/persistent-hdfs/conf
   
-  ~/ephemeral-hdfs/bin/stop-dfs.sh
   ~/persistent-hdfs/bin/start-dfs.sh
   
   sed -i 's/ephemeral/persistent/g' ~/spark/conf/spark-env.sh
