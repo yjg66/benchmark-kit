@@ -1,21 +1,19 @@
 SELECT sum(l_extendedprice) / 7.0 AS avg_yearly
-FROM (
-	SELECT p_mfgr
-		,l_quantity
-		,l_extendedprice
-	FROM lineitem
-		,part
-	WHERE p_partkey = l_partkey
-		AND p_brand = 'Brand#42'
-		AND p_container = 'JUMBO BOX'
-	) AS A
-	,(
-		SELECT p_mfgr
-			,0.2 * avg(l_quantity) AS threshold
-		FROM lineitem
-			,part
-		WHERE l_partkey = p_partkey
-		GROUP BY p_mfgr
-		) AS B
+FROM
+  ( SELECT p_mfgr ,
+           l_quantity ,
+           l_extendedprice
+   FROM lineitem ,
+        part
+   WHERE p_partkey = l_partkey
+     AND p_brand = 'Brand#42'
+     AND p_container = 'JUMBO BOX' ) AS A ,
+
+  ( SELECT p_mfgr ,
+           0.2 * avg(l_quantity) AS threshold
+   FROM lineitem ,
+        part
+   WHERE l_partkey = p_partkey
+   GROUP BY p_mfgr ) AS B
 WHERE A.p_mfgr = B.p_mfgr
-	AND l_quantity < threshold
+  AND l_quantity < threshold

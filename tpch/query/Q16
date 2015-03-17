@@ -1,33 +1,29 @@
-SELECT p_type
-	,p_size
-	,count(ps_suppkey) AS supplier_cnt
-FROM (
-	SELECT p_brand
-		,p_type
-		,p_size
-		,ps_suppkey
-	FROM partsupp
-		,part
-	WHERE p_partkey = ps_partkey
-		AND p_brand <> 'Brand#43'
-		AND p_type NOT LIKE 'STANDARD BURNISHED%'
-		AND p_size IN (
-			22
-			,7
-			,8
-			,35
-			,33
-			,11
-			,31
-			,39
-			)
-	) A
-JOIN (
-	SELECT s_suppkey
-	FROM supplier
-	WHERE s_comment NOT LIKE '%Customer%Complaints%'
-	GROUP BY s_suppkey
-	) B ON ps_suppkey = s_suppkey
-GROUP BY p_brand
-	,p_type
-	,p_size
+SELECT p_type ,
+       p_size ,
+       count(ps_suppkey) AS supplier_cnt
+FROM
+  (SELECT p_brand ,
+          p_type ,
+          p_size ,
+          ps_suppkey
+   FROM partsupp ,
+        part
+   WHERE p_partkey = ps_partkey
+     AND p_brand <> 'Brand#43'
+     AND p_type NOT LIKE 'STANDARD BURNISHED%'
+     AND p_size IN (22 ,
+                    7 ,
+                    8 ,
+                    35 ,
+                    33 ,
+                    11 ,
+                    31 ,
+                    39)) A
+JOIN
+  (SELECT s_suppkey
+   FROM supplier
+   WHERE s_comment NOT LIKE '%Customer%Complaints%'
+   GROUP BY s_suppkey) B ON ps_suppkey = s_suppkey
+GROUP BY p_brand ,
+         p_type ,
+         p_size
