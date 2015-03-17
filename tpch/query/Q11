@@ -19,4 +19,4 @@ FROM
    WHERE ps_suppkey = s_suppkey
      AND s_nationkey = n_nationkey) AS B
 WHERE A.KEY = B.KEY
-  AND value > threshold\
+  AND value > threshold
