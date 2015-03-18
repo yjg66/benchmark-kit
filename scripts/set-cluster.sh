@@ -36,7 +36,6 @@ else
   echo "spark.number.executors `cat ~/spark/conf/slaves | wc -l`" >> ~/spark/conf/spark-defaults.conf
   echo "spark.shuffle.consolidateFiles true" >> ~/spark/conf/spark-defaults.conf
   echo "spark.driver.memory $(($2 / 2))g" >> ~/spark/conf/spark-defaults.conf
-  echo "spark.sql.parquet.useDataSourceApi false" >> ~/spark/conf/spark-defaults.conf
   echo "spark.sql.autoBroadcastJoinThreshold 524288000" >> ~/spark/conf/spark-defaults.conf
   echo "spark.sql.online.test.scale $3" >> ~/spark/conf/spark-defaults.conf
 
