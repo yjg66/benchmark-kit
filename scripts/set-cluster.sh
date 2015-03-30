@@ -38,6 +38,7 @@ else
   echo "spark.driver.memory $(($2 / 2))g" >> ~/spark/conf/spark-defaults.conf
   echo "spark.sql.autoBroadcastJoinThreshold 524288000" >> ~/spark/conf/spark-defaults.conf
   echo "spark.sql.online.test.scale $3" >> ~/spark/conf/spark-defaults.conf
+  echo "spark.sql.broadcastTimeout 1200" >> ~/spark/conf/spark-defaults.conf
 
   ~/spark/sbin/stop-all.sh
   sleep 3
