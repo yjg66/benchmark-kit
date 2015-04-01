@@ -8,7 +8,7 @@ do
 	do
 		./bin/spark-submit --class org.apache.spark.examples.sql.hive.SQLSuite \
 			examples/target/scala-2.10/spark-examples-1.3.0-SNAPSHOT-hadoop1.0.4.jar \
-			$option $q
+			$option $q 1
 		../benchmark-kit/scripts/clean-work.sh
 	done
 done
