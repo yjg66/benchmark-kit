@@ -1,9 +1,11 @@
 if [[ $# -ne 3 ]]
 then
   echo "Please specify the block size in MB, memory in GB and dataset scale"
-else    
-  ~/ephemeral-hdfs/bin/stop-dfs.sh
+else
+  # stop all
+  /mnt/benchmark-kit/scripts/kill-all.sh
 
+  # set up hdfs
   if [ -d '/vol0/persistent-hdfs' ]
   then
     while read line
@@ -17,19 +19,25 @@ else
   else
     mkdir /vol0/persistent-hdfs
     ~/spar-ec2/copy-dir --delete /vol0/persistent-hdfs
-    ~/persistent-hdfs/bin/hadoop namenode -format
-  fi    
+  fi
   
   BLOCKSIZE=$(($1 * 1024 * 1024))
   sed -i 's/vol/vol0/g' ~/persistent-hdfs/conf/core-site.xml
   sed -i "s/134217728/$BLOCKSIZE/g" ~/persistent-hdfs/conf/hdfs-site.xml
+
   ~/spark-ec2/copy-dir --delete ~/persistent-hdfs/conf
+
+  if [ ! "$(ls -A /vol0/persistent-hdfs)" ]
+  then
+    ~/persistent-hdfs/bin/hadoop namenode -format
+  fi
   
-  ~/persistent-hdfs/bin/start-dfs.sh
-  
+  # set up spark
   sed -i 's/ephemeral/persistent/g' ~/spark/conf/spark-env.sh
   sed -i 's/,\/mnt2\/spark//g' ~/spark/conf/spark-env.sh
   echo "export SPARK_WORKER_DIR=/mnt/spark/work" >> ~/spark/conf/spark-env.sh
+
+  cp ~/persistent-hdfs/conf/core-site.xml ~/spark/conf/core-site.xml
 
   sed -i 's/ephemeral/persistent/g' ~/spark/conf/spark-defaults.conf
   sed -i "s/spark.executor.memory[ \t].*$/spark.executor.memory $2g/g" ~/spark/conf/spark-defaults.conf
@@ -40,7 +48,9 @@ else
   echo "spark.sql.online.test.scale $3" >> ~/spark/conf/spark-defaults.conf
   echo "spark.sql.broadcastTimeout 1200" >> ~/spark/conf/spark-defaults.conf
 
-  ~/spark/sbin/stop-all.sh
-  sleep 3
+  ~/spark-ec2/copy-dir --delete ~/spark/conf
+
+  # restart
+  ~/persistent-hdfs/bin/start-dfs.sh
   ~/spark/sbin/start-all.sh
 fi    
