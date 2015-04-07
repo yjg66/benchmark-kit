@@ -1,6 +1,6 @@
 if [[ $# -ne 3 ]]
 then
-  echo "Please specify the block size in MB, memory in GB and dataset scale"
+  echo "Usage: set-cluster [block size in MB] [memory in GB] [dataset scale]"
 else
   # stop all
   /mnt/benchmark-kit/scripts/kill-all.sh
@@ -27,6 +27,9 @@ else
 
   ~/spark-ec2/copy-dir --delete ~/persistent-hdfs/conf
 
+  cp ~/persistent-hdfs/conf/* ~/mapreduce/conf/
+  ~/spark-ec2/copy-dir --delete ~/mapreduce/conf
+
   if [ ! "$(ls -A /vol0/persistent-hdfs)" ]
   then
     ~/persistent-hdfs/bin/hadoop namenode -format
@@ -51,6 +54,5 @@ else
   ~/spark-ec2/copy-dir --delete ~/spark/conf
 
   # restart
-  ~/persistent-hdfs/bin/start-dfs.sh
-  ~/spark/sbin/start-all.sh
+  /mnt/benchmark-kit/scripts/start-all.sh
 fi    

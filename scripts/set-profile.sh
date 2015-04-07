@@ -10,5 +10,4 @@ echo "export SPARK_JAVA_OPTS" >> ~/spark/conf/spark-env.sh
 cp ~/spark/conf/* /mnt/bootstrap-sql/conf/
 
 /mnt/benchmark-kit/scripts/kill-all.sh && \
-~/persistent-hdfs/bin/start-dfs.sh && \
-~/spark/sbin/start-all.sh
+/mnt/benchmark-kit/scripts/start-all.sh
