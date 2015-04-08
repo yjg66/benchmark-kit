@@ -1,0 +1,4 @@
+select floor(ss_quantity/20), count(1) 
+from store_sales
+group by floor(ss_quantity/20)
+
