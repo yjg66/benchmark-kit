@@ -47,7 +47,7 @@ else
   echo "spark.number.executors `cat ~/spark/conf/slaves | wc -l`" >> ~/spark/conf/spark-defaults.conf
   echo "spark.shuffle.consolidateFiles true" >> ~/spark/conf/spark-defaults.conf
   echo "spark.driver.memory $(($2 / 2))g" >> ~/spark/conf/spark-defaults.conf
-  echo "spark.sql.autoBroadcastJoinThreshold 524288000" >> ~/spark/conf/spark-defaults.conf
+  echo "spark.sql.autoBroadcastJoinThreshold 52428800" >> ~/spark/conf/spark-defaults.conf
   echo "spark.sql.online.test.scale $3" >> ~/spark/conf/spark-defaults.conf
   echo "spark.sql.broadcastTimeout 1200" >> ~/spark/conf/spark-defaults.conf
 
