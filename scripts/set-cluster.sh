@@ -19,6 +19,10 @@ else
   else
     mkdir /vol0/persistent-hdfs
     ~/spar-ec2/copy-dir --delete /vol0/persistent-hdfs
+
+    # set up rmate
+    sudo wget -O /usr/local/bin/rsub https://raw.github.com/aurora/rmate/master/rmate
+    chmod a+x /usr/local/bin/rsub
   fi
   
   BLOCKSIZE=$(($1 * 1024 * 1024))
