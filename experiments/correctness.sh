@@ -10,7 +10,7 @@ do
 		do
 			./bin/spark-submit --class org.apache.spark.examples.sql.hive.SQLSuite \
 				examples/target/scala-2.10/spark-examples-1.3.1-hadoop1.0.4.jar \
-				$option $q
+				$option $q parquet-512k
 		done
 	done
 done
