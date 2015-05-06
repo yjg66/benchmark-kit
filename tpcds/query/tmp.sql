@@ -1,57 +1,3 @@
--- 2713  998261  14402
-select min(cnt), max(cnt), count(cnt)
-from (select c_current_hdemo_sk ,
-        d_year
-       ,count(1) as cnt
- from customer_kz
-     ,catalog_sales_kz
-      ,date_dim_kz
- where c_customer_sk = cs_bill_customer_sk
-        and cs_sold_date_sk = d_date_sk
-      and (d_year = 2000 or d_year = 2001)
- group by c_current_hdemo_sk
-        , d_year
- ) as t
-
-
--- 1197 504202  14402
-select min(cnt), max(cnt), count(cnt)
-from (select c_current_hdemo_sk ,
-        d_year
-       ,count(1) as cnt
- from customer_kz
-     ,web_sales_kz
-      ,date_dim_kz
- where c_customer_sk = ws_bill_customer_sk
-        and ws_sold_date_sk = d_date_sk
-      and (d_year = 2000 or d_year = 2001)
- group by c_current_hdemo_sk
-        , d_year
- ) as t
-
-
--- 5215 1873047 14402
-select min(cnt), max(cnt), count(cnt)
-from (select c_current_hdemo_sk ,
-        d_year
-       ,count(1) as cnt
- from customer_kz
-     ,store_sales_kz
-      ,date_dim_kz
- where c_customer_sk = ss_bill_customer_sk
-        and ss_sold_date_sk = d_date_sk
-      and (d_year = 2000 or d_year = 2001)
- group by c_current_hdemo_sk
-        , d_year
- ) as t
-
-
---- ####################
-
-
--- Find the education status of the set of customers who spent more money via web than in store.
--- group by cd_education_status, 7 groups, [10276196, 10293418] tuples per group
-
 with year_total as (
  select c_customer_id customer_id
        ,c_first_name customer_first_name
@@ -146,12 +92,12 @@ WHERE t_s_secyear.customer_id = t_s_firstyear.customer_id
   AND t_s_secyear.sale_type = 's'
   AND t_c_secyear.sale_type = 'c'
   AND t_w_secyear.sale_type = 'w'
-  AND t_s_firstyear.dyear = 1999
-  AND t_s_secyear.dyear = 1999+1
-  AND t_c_firstyear.dyear = 1999
-  AND t_c_secyear.dyear = 1999+1
-  AND t_w_firstyear.dyear = 1999
-  AND t_w_secyear.dyear = 1999+1
+  AND t_s_firstyear.dyear = 2000
+  AND t_s_secyear.dyear = 2000+1
+  AND t_c_firstyear.dyear = 2000
+  AND t_c_secyear.dyear = 2000+1
+  AND t_w_firstyear.dyear = 2000
+  AND t_w_secyear.dyear = 2000+1
   AND t_s_firstyear.year_total > 0
   AND t_c_firstyear.year_total > 0
   AND t_w_firstyear.year_total > 0
@@ -169,4 +115,8 @@ WHERE t_s_secyear.customer_id = t_s_firstyear.customer_id
                 WHEN t_w_firstyear.year_total > 0 THEN t_w_secyear.year_total / t_w_firstyear.year_total
                 ELSE NULL
             END
-            
+ORDER BY t_s_secyear.customer_id ,
+         t_s_secyear.customer_first_name ,
+         t_s_secyear.customer_last_name ,
+         t_s_secyear.customer_preferred_cust_flag
+
