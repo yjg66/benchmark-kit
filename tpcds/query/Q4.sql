@@ -1,172 +1,86 @@
--- 2713  998261  14402
-select min(cnt), max(cnt), count(cnt)
-from (select c_current_hdemo_sk ,
-        d_year
-       ,count(1) as cnt
- from customer_kz
-     ,catalog_sales_kz
-      ,date_dim_kz
- where c_customer_sk = cs_bill_customer_sk
-        and cs_sold_date_sk = d_date_sk
-      and (d_year = 2000 or d_year = 2001)
- group by c_current_hdemo_sk
-        , d_year
- ) as t
+-- Find the household demographics of which the customers spent more money via catalog than store/web.
 
+-- usage:
+-- pre-partition customer by c_current_hdemo_sk and cache it
 
--- 1197 504202  14402
-select min(cnt), max(cnt), count(cnt)
-from (select c_current_hdemo_sk ,
-        d_year
-       ,count(1) as cnt
- from customer_kz
-     ,web_sales_kz
-      ,date_dim_kz
- where c_customer_sk = ws_bill_customer_sk
-        and ws_sold_date_sk = d_date_sk
-      and (d_year = 2000 or d_year = 2001)
- group by c_current_hdemo_sk
-        , d_year
- ) as t
+-- stats:
+-- group by current_hdemo: 14402 groups, 
+--  [5237, 1873047] tuples per group for store_sales
+--  [2815, 998261] tuples per group for catalog_sales
+--  [1197, 504202] tuples per group for web_sales
 
-
--- 5215 1873047 14402
-select min(cnt), max(cnt), count(cnt)
-from (select c_current_hdemo_sk ,
-        d_year
-       ,count(1) as cnt
- from customer_kz
-     ,store_sales_kz
-      ,date_dim_kz
- where c_customer_sk = ss_bill_customer_sk
-        and ss_sold_date_sk = d_date_sk
-      and (d_year = 2000 or d_year = 2001)
- group by c_current_hdemo_sk
-        , d_year
- ) as t
-
-
---- ####################
-
-
--- Find the education status of the set of customers who spent more money via web than in store.
--- group by cd_education_status, 7 groups, [10276196, 10293418] tuples per group
-
-with year_total as (
- select c_customer_id customer_id
-       ,c_first_name customer_first_name
-       ,c_last_name customer_last_name
-       ,c_preferred_cust_flag customer_preferred_cust_flag
-       ,c_birth_country customer_birth_country
-       ,c_login customer_login
-       ,c_email_address customer_email_address
-       ,d_year dyear
-       ,sum(((ss_ext_list_price-ss_ext_wholesale_cost-ss_ext_discount_amt)+ss_ext_sales_price)/2) year_total
-       ,'s' sale_type
- from customer
-     ,store_sales
-     ,date_dim
- where c_customer_sk = ss_customer_sk
-   and ss_sold_date_sk = d_date_sk
- group by c_customer_id
-         ,c_first_name
-         ,c_last_name
-         ,c_preferred_cust_flag
-         ,c_birth_country
-         ,c_login
-         ,c_email_address
-         ,d_year
- union all
- select c_customer_id customer_id
-       ,c_first_name customer_first_name
-       ,c_last_name customer_last_name
-       ,c_preferred_cust_flag customer_preferred_cust_flag
-       ,c_birth_country customer_birth_country
-       ,c_login customer_login
-       ,c_email_address customer_email_address
-       ,d_year dyear
-       ,sum((((cs_ext_list_price-cs_ext_wholesale_cost-cs_ext_discount_amt)+cs_ext_sales_price)/2) ) year_total
-       ,'c' sale_type
- from customer
-     ,catalog_sales
-     ,date_dim
- where c_customer_sk = cs_bill_customer_sk
-   and cs_sold_date_sk = d_date_sk
- group by c_customer_id
-         ,c_first_name
-         ,c_last_name
-         ,c_preferred_cust_flag
-         ,c_birth_country
-         ,c_login
-         ,c_email_address
-         ,d_year
-union all
- select c_customer_id customer_id
-       ,c_first_name customer_first_name
-       ,c_last_name customer_last_name
-       ,c_preferred_cust_flag customer_preferred_cust_flag
-       ,c_birth_country customer_birth_country
-       ,c_login customer_login
-       ,c_email_address customer_email_address
-       ,d_year dyear
-       ,sum((((ws_ext_list_price-ws_ext_wholesale_cost-ws_ext_discount_amt)+ws_ext_sales_price)/2) ) year_total
-       ,'w' sale_type
- from customer
-     ,web_sales
-     ,date_dim
- where c_customer_sk = ws_bill_customer_sk
-   and ws_sold_date_sk = d_date_sk
- group by c_customer_id
-         ,c_first_name
-         ,c_last_name
-         ,c_preferred_cust_flag
-         ,c_birth_country
-         ,c_login
-         ,c_email_address
-         ,d_year
-         )
-SELECT t_s_secyear.customer_id ,
-       t_s_secyear.customer_first_name ,
-       t_s_secyear.customer_last_name ,
-       t_s_secyear.customer_preferred_cust_flag
-FROM year_total t_s_firstyear ,
-     year_total t_s_secyear ,
-     year_total t_c_firstyear ,
-     year_total t_c_secyear ,
-     year_total t_w_firstyear ,
-     year_total t_w_secyear
-WHERE t_s_secyear.customer_id = t_s_firstyear.customer_id
-  AND t_s_firstyear.customer_id = t_c_secyear.customer_id
-  AND t_s_firstyear.customer_id = t_c_firstyear.customer_id
-  AND t_s_firstyear.customer_id = t_w_firstyear.customer_id
-  AND t_s_firstyear.customer_id = t_w_secyear.customer_id
-  AND t_s_firstyear.sale_type = 's'
-  AND t_c_firstyear.sale_type = 'c'
-  AND t_w_firstyear.sale_type = 'w'
-  AND t_s_secyear.sale_type = 's'
-  AND t_c_secyear.sale_type = 'c'
-  AND t_w_secyear.sale_type = 'w'
-  AND t_s_firstyear.dyear = 1999
-  AND t_s_secyear.dyear = 1999+1
-  AND t_c_firstyear.dyear = 1999
-  AND t_c_secyear.dyear = 1999+1
-  AND t_w_firstyear.dyear = 1999
-  AND t_w_secyear.dyear = 1999+1
-  AND t_s_firstyear.year_total > 0
-  AND t_c_firstyear.year_total > 0
-  AND t_w_firstyear.year_total > 0
-  AND CASE
-          WHEN t_c_firstyear.year_total > 0 THEN t_c_secyear.year_total / t_c_firstyear.year_total
-          ELSE NULL
-      END > CASE
-                WHEN t_s_firstyear.year_total > 0 THEN t_s_secyear.year_total / t_s_firstyear.year_total
-                ELSE NULL
-            END
-  AND CASE
-          WHEN t_c_firstyear.year_total > 0 THEN t_c_secyear.year_total / t_c_firstyear.year_total
-          ELSE NULL
-      END > CASE
-                WHEN t_w_firstyear.year_total > 0 THEN t_w_secyear.year_total / t_w_firstyear.year_total
-                ELSE NULL
-            END
-            
+SELECT t_s_secyear.c_current_hdemo_sk
+FROM
+  (SELECT c_current_hdemo_sk ,
+          d_year dyear ,
+          sum(((ss_ext_list_price-ss_ext_wholesale_cost-ss_ext_discount_amt)+ss_ext_sales_price)/2) year_total
+   FROM customer ,
+        store_sales ,
+        date_dim
+   WHERE c_customer_sk = ss_customer_sk
+     AND ss_sold_date_sk = d_date_sk
+     AND d_year = 1999
+   GROUP BY c_current_hdemo_sk ,
+            d_year HAVING year_total > 0) t_s_firstyear ,
+  (SELECT c_current_hdemo_sk ,
+          d_year dyear ,
+          sum(((ss_ext_list_price-ss_ext_wholesale_cost-ss_ext_discount_amt)+ss_ext_sales_price)/2) year_total
+   FROM customer ,
+        store_sales ,
+        date_dim
+   WHERE c_customer_sk = ss_customer_sk
+     AND ss_sold_date_sk = d_date_sk
+     AND d_year = 2000
+   GROUP BY c_current_hdemo_sk ,
+            d_year) t_s_secyear ,
+  (SELECT c_current_hdemo_sk ,
+          d_year dyear ,
+          sum((((cs_ext_list_price-cs_ext_wholesale_cost-cs_ext_discount_amt)+cs_ext_sales_price)/2)) year_total
+   FROM customer ,
+        catalog_sales ,
+        date_dim
+   WHERE c_customer_sk = cs_bill_customer_sk
+     AND cs_sold_date_sk = d_date_sk
+     AND d_year = 1999
+   GROUP BY c_current_hdemo_sk ,
+            d_year HAVING year_total > 0) t_c_firstyear ,
+  (SELECT c_current_hdemo_sk ,
+          d_year dyear ,
+          sum((((cs_ext_list_price-cs_ext_wholesale_cost-cs_ext_discount_amt)+cs_ext_sales_price)/2)) year_total
+   FROM customer ,
+        catalog_sales ,
+        date_dim
+   WHERE c_customer_sk = cs_bill_customer_sk
+     AND cs_sold_date_sk = d_date_sk
+     AND d_year = 2000
+   GROUP BY c_current_hdemo_sk ,
+            d_year) t_c_secyear ,
+  (SELECT c_current_hdemo_sk ,
+          d_year dyear ,
+          sum((((ws_ext_list_price-ws_ext_wholesale_cost-ws_ext_discount_amt)+ws_ext_sales_price)/2)) year_total
+   FROM customer ,
+        web_sales ,
+        date_dim
+   WHERE c_customer_sk = ws_bill_customer_sk
+     AND ws_sold_date_sk = d_date_sk
+     AND d_year = 1999
+   GROUP BY c_current_hdemo_sk ,
+            d_year HAVING year_total > 0) t_w_firstyear ,
+  (SELECT c_current_hdemo_sk ,
+          d_year dyear ,
+          sum((((ws_ext_list_price-ws_ext_wholesale_cost-ws_ext_discount_amt)+ws_ext_sales_price)/2)) year_total
+   FROM customer ,
+        web_sales ,
+        date_dim
+   WHERE c_customer_sk = ws_bill_customer_sk
+     AND ws_sold_date_sk = d_date_sk
+     AND d_year = 2000
+   GROUP BY c_current_hdemo_sk ,
+            d_year) t_w_secyear
+WHERE t_s_secyear.c_current_hdemo_sk = t_s_firstyear.c_current_hdemo_sk
+  AND t_s_firstyear.c_current_hdemo_sk = t_c_secyear.c_current_hdemo_sk
+  AND t_s_firstyear.c_current_hdemo_sk = t_c_firstyear.c_current_hdemo_sk
+  AND t_s_firstyear.c_current_hdemo_sk = t_w_firstyear.c_current_hdemo_sk
+  AND t_s_firstyear.c_current_hdemo_sk = t_w_secyear.c_current_hdemo_sk
+  AND t_c_secyear.year_total / t_c_firstyear.year_total > t_s_secyear.year_total / t_s_firstyear.year_total
+  AND t_c_secyear.year_total / t_c_firstyear.year_total > t_w_secyear.year_total / t_w_firstyear.year_total
