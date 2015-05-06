@@ -1,4 +1,0 @@
-select cd_education_status, count(1)
-from web_sales, customer_demographics
-where ws_bill_cdemo_sk = cd_demo_sk
-group by cd_education_status

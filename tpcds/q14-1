@@ -1,4 +1,0 @@
-select avg(ss_quantity * ss_list_price)
-from store_sales, date_dim
-where ss_sold_date_sk = d_date_sk
-  and d_year between 1999 and 2001
