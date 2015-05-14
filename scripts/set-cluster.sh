@@ -62,7 +62,7 @@ else
   # consolidate files
   echo "spark.shuffle.consolidateFiles true" >> ~/spark/conf/spark-defaults.conf
   # other configs
-  cat /mnt/benchmark-kit/$DATASET/conf/$DATASCALE >> ~/spark/conf/spark-defaults.conf
+  cat /mnt/benchmark-kit/$DATASET/conf/$DATASCALE/conf >> ~/spark/conf/spark-defaults.conf
 
   ~/spark-ec2/copy-dir --delete ~/spark/conf
 
