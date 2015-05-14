@@ -1,0 +1,3 @@
+spark.sql.autoBroadcastJoinThreshold 52428800
+spark.sql.online.test.scale 100
+spark.sql.broadcastTimeout 1200
