@@ -50,8 +50,8 @@ else
   sed -i 's/ephemeral/persistent/g' ~/spark/conf/spark-env.sh
   sed -i 's/ephemeral/persistent/g' ~/spark/conf/spark-defaults.conf
   cp ~/persistent-hdfs/conf/core-site.xml ~/spark/conf/core-site.xml
-  # ?
-  # sed -i 's/,\/mnt2\/spark//g' ~/spark/conf/spark-env.sh
+  # turn off /mnt2
+  sed -i 's/,\/mnt2\/spark//g' ~/spark/conf/spark-env.sh
   # redirect log folder
   echo "export SPARK_WORKER_DIR=/mnt/spark/work" >> ~/spark/conf/spark-env.sh
   # mem size
